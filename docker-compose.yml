@@ -1,21 +1,21 @@
 services:
   # Base de datos PostgreSQL
   postgres:
-    image: postgres:latest
+    image: postgres:17
     container_name: despacho-postgres
     environment:
-      POSTGRES_DB: ${DB_NAME:-despacho_db}
-      POSTGRES_USER: ${DB_USER:-despacho_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-despacho_pass}
+      POSTGRES_DB: ${DB_NAME:-db_smartride_despacho}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password123}
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "5433:5432"  
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - smart-ride-network
+      - despacho-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-despacho_user}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,28 +28,28 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
     ports:
-      - "${RABBITMQ_PORT:-5672}:5672"
-      - "15672:15672"  # Management UI
+      - "5673:5672"   
+      - "15673:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - smart-ride-network
+      - despacho-network
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Redis (opcional, para caché)
+  # Redis
   redis:
     image: redis:7-alpine
     container_name: despacho-redis
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "6380:6379"  
     volumes:
       - redis_data:/data
     networks:
-      - smart-ride-network
+      - despacho-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -64,24 +64,24 @@ services:
     container_name: despacho-api
     command: api
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-despacho_user}:${DB_PASSWORD:-despacho_pass}@postgres:5432/${DB_NAME:-despacho_db}
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-password123}@postgres:5432/${DB_NAME:-db_smartride_despacho}
       - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-despacho_db}
-      - DB_USER=${DB_USER:-despacho_user}
-      - DB_PASSWORD=${DB_PASSWORD:-despacho_pass}
+      - DB_PORT=5432  
+      - DB_NAME=${DB_NAME:-db_smartride_despacho}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-password123}
       - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672
+      - RABBITMQ_PORT=5672  
       - RABBITMQ_USER=${RABBITMQ_USER:-guest}
       - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_PORT=6379  
       - PORT=8003
       - GRPC_PORT=50051
       - DEBUG=${DEBUG:-True}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "${PORT:-8003}:8003"
+      - "8003:8003"
     depends_on:
       postgres:
         condition: service_healthy
@@ -90,7 +90,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - smart-ride-network
+      - despacho-network
     restart: unless-stopped
 
   # Servidor gRPC
@@ -101,12 +101,12 @@ services:
     container_name: despacho-grpc
     command: grpc
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-despacho_user}:${DB_PASSWORD:-despacho_pass}@postgres:5432/${DB_NAME:-despacho_db}
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-password123}@postgres:5432/${DB_NAME:-db_smartride_despacho}
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-despacho_db}
-      - DB_USER=${DB_USER:-despacho_user}
-      - DB_PASSWORD=${DB_PASSWORD:-despacho_pass}
+      - DB_NAME=${DB_NAME:-db_smartride_despacho}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-password123}
       - GRPC_HOST=0.0.0.0
       - GRPC_PORT=50051
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -116,7 +116,7 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - smart-ride-network
+      - despacho-network
     restart: unless-stopped
 
 volumes:
@@ -125,5 +125,5 @@ volumes:
   redis_data:
 
 networks:
-  smart-ride-network:
+  despacho-network:  
     driver: bridge
