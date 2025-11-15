@@ -1,117 +1,44 @@
+version: '3.8'
+
 services:
   # Base de datos PostgreSQL
   postgres:
-    image: postgres:17
+    image: postgres:latest
     container_name: despacho-postgres
     environment:
-      POSTGRES_DB: ${DB_NAME:-db_smartride_despacho}
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-password123}
+      POSTGRES_DB: despacho_db
+      POSTGRES_USER: despacho_user
+      POSTGRES_PASSWORD: despacho_pass
     ports:
-      - "5433:5432"  
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - despacho-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: [ "CMD-SHELL", "pg_isready -U despacho_user -d despacho_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # RabbitMQ
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: despacho-rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
-    ports:
-      - "5673:5672"   
-      - "15673:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - despacho-network
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Redis
-  redis:
-    image: redis:7-alpine
-    container_name: despacho-redis
-    ports:
-      - "6380:6379"  
-    volumes:
-      - redis_data:/data
-    networks:
-      - despacho-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # API FastAPI
+  # API del servicio de despacho
   despacho-api:
     build:
       context: .
-      target: production
+      dockerfile: Dockerfile
     container_name: despacho-api
-    command: api
     environment:
-      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-password123}@postgres:5432/${DB_NAME:-db_smartride_despacho}
-      - DB_HOST=postgres
-      - DB_PORT=5432  
-      - DB_NAME=${DB_NAME:-db_smartride_despacho}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-password123}
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5672  
-      - RABBITMQ_USER=${RABBITMQ_USER:-guest}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379  
-      - PORT=8003
-      - GRPC_PORT=50051
-      - DEBUG=${DEBUG:-True}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-    ports:
-      - "8003:8003"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - despacho-network
-    restart: unless-stopped
-
-  # Servidor gRPC
-  despacho-grpc:
-    build:
-      context: .
-      target: production
-    container_name: despacho-grpc
-    command: grpc
-    environment:
-      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-password123}@postgres:5432/${DB_NAME:-db_smartride_despacho}
+      - DATABASE_URL=postgresql://despacho_user:despacho_pass@postgres:5432/despacho_db
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-db_smartride_despacho}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-password123}
-      - GRPC_HOST=0.0.0.0
-      - GRPC_PORT=50051
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DB_NAME=despacho_db
+      - DB_USER=despacho_user
+      - DB_PASSWORD=despacho_pass
+      - PORT=8003
+      - DEBUG=True
     ports:
-      - "50051:50051"
+      - "8003:8003"
     depends_on:
       postgres:
         condition: service_healthy
@@ -121,9 +48,8 @@ services:
 
 volumes:
   postgres_data:
-  rabbitmq_data:
-  redis_data:
+
 
 networks:
-  despacho-network:  
+  despacho-network:
     driver: bridge

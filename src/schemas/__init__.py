@@ -2,17 +2,12 @@ from src.schemas.conductor import (
     ConductorCreate,
     ConductorUpdate,
     ConductorResponse,
-    ConductorEstadoUpdate,
-    ConductorUbicacionUpdate,
-    ConductorDisponible
+    ConductorEstadoUpdate
 )
 from src.schemas.asignacion import (
     AsignacionCreate,
-    AsignacionManual,
     AsignacionUpdate,
-    AsignacionResponse,
-    AsignacionStats,
-    SolicitudAsignacionRabbitMQ
+    AsignacionResponse
 )
 
 __all__ = [
@@ -20,12 +15,7 @@ __all__ = [
     "ConductorUpdate",
     "ConductorResponse",
     "ConductorEstadoUpdate",
-    "ConductorUbicacionUpdate",
-    "ConductorDisponible",
     "AsignacionCreate",
-    "AsignacionManual",
     "AsignacionUpdate",
-    "AsignacionResponse",
-    "AsignacionStats",
-    "SolicitudAsignacionRabbitMQ"
+    "AsignacionResponse"
 ]

@@ -13,7 +13,7 @@ class EstadoConductor(str, enum.Enum):
 
 
 class Conductor(Base):
-    """Modelo de conductor para asignación de viajes"""
+    """Modelo de conductor"""
     
     __tablename__ = "conductores"
     
@@ -42,6 +42,3 @@ class Conductor(Base):
         DateTime(timezone=True),
         server_default=func.now()
     )
-    
-    def __repr__(self):
-        return f"<Conductor(id={self.id_conductor}, nombre={self.nombre_completo}, estado={self.estado})>"

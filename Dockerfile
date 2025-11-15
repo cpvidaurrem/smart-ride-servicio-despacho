@@ -1,64 +1,35 @@
-# Etapa Base
-FROM python:3.12-slim AS base
+FROM python:3.11-slim
 
+# Variables de entorno
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PYTHONDONTWRITEBYTECODE=1
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    gcc \
     postgresql-client \
-    curl \
+    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
+# Directorio de trabajo
 WORKDIR /app
 
-# Copiar y instalar dependencias Python
+# Copiar requirements e instalar dependencias
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Etapa gRPC Builder
-FROM base AS grpc-builder
-
-COPY src/grpc/despacho.proto src/grpc/
-
-# Generar archivos gRPC
-RUN python -m grpc_tools.protoc \
-    -I. \
-    --python_out=. \
-    --grpc_python_out=. \
-    src/grpc/despacho.proto
-
-# Etapa Producción (API FastAPI)
-FROM base AS production
 
 # Copiar código fuente
 COPY src/ src/
 COPY migrations/ migrations/
 
-# Copiar archivos generados de gRPC
-COPY --from=grpc-builder /app/src/grpc/despacho_pb2.py src/grpc/
-COPY --from=grpc-builder /app/src/grpc/despacho_pb2_grpc.py src/grpc/
-
 # Crear usuario no-root
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
-
-# Copiar script de entrada
-COPY docker-entrypoint.sh /app/
-RUN chmod +x /app/docker-entrypoint.sh
-
+RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
 
+# Exponer puerto
 EXPOSE 8003
 
+# Script de inicio
+COPY --chown=appuser:appuser docker-entrypoint.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh
+
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["api"]
-
-# Etapa gRPC Server
-FROM production AS grpc
-
-EXPOSE 50051
-
-CMD ["grpc"]
