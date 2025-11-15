@@ -22,7 +22,7 @@ class TipoAlgoritmo(str, enum.Enum):
 
 
 class Asignacion(Base):
-    """Modelo de asignación de conductor a viaje"""
+    """Modelo de asignación"""
     
     __tablename__ = "asignaciones"
     
@@ -30,12 +30,8 @@ class Asignacion(Base):
     id_viaje = Column(Integer, nullable=False, index=True)
     id_conductor = Column(Integer, nullable=False, index=True)
     id_pasajero = Column(Integer, nullable=False)
-    
-    # Detalles del viaje
     origen = Column(String(200), nullable=False)
     destino = Column(String(200), nullable=False)
-    
-    # Estado y algoritmo usado
     estado = Column(
         SQLEnum(EstadoAsignacion),
         default=EstadoAsignacion.ASIGNADO,
@@ -47,13 +43,9 @@ class Asignacion(Base):
         default=TipoAlgoritmo.ROUND_ROBIN,
         nullable=False
     )
-    
-    # Métricas
     prioridad = Column(Integer, default=1)
     tiempo_asignacion_ms = Column(Integer, nullable=True)
     distancia_estimada_km = Column(Float, nullable=True)
-    
-    # Metadata
     motivo_rechazo = Column(Text, nullable=True)
     fecha_asignacion = Column(
         DateTime(timezone=True),
@@ -64,6 +56,3 @@ class Asignacion(Base):
         server_default=func.now(),
         onupdate=func.now()
     )
-    
-    def __repr__(self):
-        return f"<Asignacion(id={self.id_asignacion}, viaje={self.id_viaje}, conductor={self.id_conductor}, estado={self.estado})>"

@@ -1,0 +1,904 @@
+{
+	"info": {
+		"_postman_id": "2b13d6c5-cc47-48eb-b55b-3c81b5e33e68",
+		"name": "Servicio Despacho - Smart Ride",
+		"description": "Colección completa de pruebas CRUD para el microservicio de despacho",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27582525"
+	},
+	"item": [
+		{
+			"name": "0. Health & Info",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Service is healthy\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql(\"healthy\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Verificar el estado de salud del servicio"
+					},
+					"response": []
+				},
+				{
+					"name": "Service Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Información general del servicio"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1. Conductores - CRUD Completo",
+			"item": [
+				{
+					"name": "1.1 CREATE - Crear Conductor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has conductor data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id_conductor');",
+									"    pm.expect(jsonData).to.have.property('nombre_completo');",
+									"    pm.expect(jsonData.estado).to.eql('desconectado');",
+									"    ",
+									"    // Guardar el ID para usar en otras pruebas",
+									"    pm.collectionVariables.set('conductor_id', jsonData.id_conductor);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_usuario\": 202,\n  \"nombre_completo\": \"Juan mendez Eliminar\",\n  \"licencia\": \"LIC-ELIM-101\",\n  \"modelo_auto\": \"Toyota Corolla 2020\",\n  \"placa_auto\": \"ELIM-101\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								""
+							]
+						},
+						"description": "Crear un nuevo conductor en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 READ - Listar Todos los Conductores",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    pm.expect(jsonData.length).to.be.at.least(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								""
+							]
+						},
+						"description": "Obtener lista completa de conductores"
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 READ - Obtener Conductor por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Conductor has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id_conductor');",
+									"    pm.expect(jsonData).to.have.property('nombre_completo');",
+									"    pm.expect(jsonData).to.have.property('placa_auto');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/{{conductor_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								"{{conductor_id}}"
+							]
+						},
+						"description": "Obtener información de un conductor específico"
+					},
+					"response": []
+				},
+				{
+					"name": "1.4 UPDATE - Actualizar Conductor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Conductor was updated\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.nombre_completo).to.include('Actualizado');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  //\"nombre_completo\": \"Carlos Mendoza Actualizado\",\n  //\"modelo_auto\": \"Nissan Versa 2023\",\n  \"estado\": \"disponible\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/{{conductor_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								"{{conductor_id}}"
+							]
+						},
+						"description": "Actualizar información de un conductor"
+					},
+					"response": []
+				},
+				{
+					"name": "1.5 PATCH - Cambiar Estado a DISPONIBLE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Estado changed to DISPONIBLE\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.estado).to.eql('disponible');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"disponible\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/{{conductor_id}}/estado",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								"{{conductor_id}}",
+								"estado"
+							]
+						},
+						"description": "Cambiar el estado de disponibilidad del conductor"
+					},
+					"response": []
+				},
+				{
+					"name": "1.5.1 PATCH - Cambiar Estado a OCUPADO",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Estado changed to DISPONIBLE\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.estado).to.eql('ocupado');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"ocupado\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/{{conductor_id}}/estado",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								"{{conductor_id}}",
+								"estado"
+							]
+						},
+						"description": "Cambiar el estado de disponibilidad del conductor"
+					},
+					"response": []
+				},
+				{
+					"name": "1.6 READ - Conductores Disponibles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"All conductores are DISPONIBLE\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/disponibles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								"disponibles"
+							]
+						},
+						"description": "Obtener solo los conductores disponibles"
+					},
+					"response": []
+				},
+				{
+					"name": "1.7 READ - Filtrar por Estado",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/?estado=disponible",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								""
+							],
+							"query": [
+								{
+									"key": "estado",
+									"value": "disponible"
+								}
+							]
+						},
+						"description": "Filtrar conductores por estado específico"
+					},
+					"response": []
+				},
+				{
+					"name": "1.8 DELETE - Eliminar Conductor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/{{conductor_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								"{{conductor_id}}"
+							]
+						},
+						"description": "Eliminar un conductor (soft delete)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Asignaciones - CRUD Completo",
+			"item": [
+				{
+					"name": "2.1 CREATE - Asignación Automática (Round Robin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Asignación created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id_asignacion');",
+									"    pm.expect(jsonData).to.have.property('id_conductor');",
+									"    pm.expect(jsonData.estado).to.eql('ASIGNADO');",
+									"    pm.expect(jsonData.algoritmo_usado).to.eql('ROUND_ROBIN');",
+									"    ",
+									"    // Guardar el ID para usar en otras pruebas",
+									"    pm.collectionVariables.set('asignacion_id', jsonData.id_asignacion);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_viaje\": 1001,\n  \"id_pasajero\": 500,\n  \"origen\": \"Plaza 25 de Mayo\",\n  \"destino\": \"Terminal de Buses\",\n  \"prioridad\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/asignaciones/automatica?algoritmo=round_robin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"asignaciones",
+								"automatica"
+							],
+							"query": [
+								{
+									"key": "algoritmo",
+									"value": "round_robin"
+								}
+							]
+						},
+						"description": "Crear asignación automática usando algoritmo Round Robin"
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 CREATE - Asignación Automática (Calificación)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_viaje\": 1002,\n  \"id_pasajero\": 501,\n  \"origen\": \"Aeropuerto\",\n  \"destino\": \"Centro Histórico\",\n  \"prioridad\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/asignaciones/automatica?algoritmo=CALIFICACION",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"asignaciones",
+								"automatica"
+							],
+							"query": [
+								{
+									"key": "algoritmo",
+									"value": "CALIFICACION"
+								}
+							]
+						},
+						"description": "Crear asignación usando algoritmo de mejor calificación"
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 READ - Listar Todas las Asignaciones",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/asignaciones/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"asignaciones",
+								""
+							]
+						},
+						"description": "Obtener lista de todas las asignaciones"
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 READ - Obtener Asignación por ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Asignación has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id_asignacion');",
+									"    pm.expect(jsonData).to.have.property('id_viaje');",
+									"    pm.expect(jsonData).to.have.property('id_conductor');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/asignaciones/{{asignacion_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"asignaciones",
+								"{{asignacion_id}}"
+							]
+						},
+						"description": "Obtener asignación específica por ID"
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 UPDATE - Cambiar Estado a ACEPTADO",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Estado changed to ACEPTADO\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.estado).to.eql('aceptado');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"estado\": \"aceptado\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/asignaciones/{{asignacion_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"asignaciones",
+								"{{asignacion_id}}"
+							]
+						},
+						"description": "Actualizar el estado de una asignación"
+					},
+					"response": []
+				},
+				{
+					"name": "2.6 POST - Completar Asignación",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Estado is COMPLETADO\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.estado).to.eql('completado');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/asignaciones/{{asignacion_id}}/completar",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"asignaciones",
+								"{{asignacion_id}}",
+								"completar"
+							]
+						},
+						"description": "Marcar una asignación como completada"
+					},
+					"response": []
+				},
+				{
+					"name": "2.7 READ - Filtrar por Estado",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/asignaciones/?estado=completado",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"asignaciones",
+								""
+							],
+							"query": [
+								{
+									"key": "estado",
+									"value": "completado"
+								}
+							]
+						},
+						"description": "Filtrar asignaciones por estado"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Casos de Prueba Adicionales",
+			"item": [
+				{
+					"name": "3.1 Crear Conductor con Datos Duplicados (Error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Error message is returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('detail');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_usuario\": 101,\n  \"nombre_completo\": \"Duplicado\",\n  \"licencia\": \"LIC-12345\",\n  \"modelo_auto\": \"Test\",\n  \"placa_auto\": \"ABC-1234\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								""
+							]
+						},
+						"description": "Intentar crear conductor con datos duplicados"
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Obtener Conductor Inexistente (Error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/conductores/9999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"conductores",
+								"9999"
+							]
+						},
+						"description": "Intentar obtener un conductor que no existe"
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 Asignación Sin Conductores Disponibles",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id_viaje\": 9998,\n  \"id_pasajero\": 9998,\n  \"origen\": \"TestDos\",\n  \"destino\": \"TestDos\",\n  \"prioridad\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/asignaciones/automatica?algoritmo=round_robin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"asignaciones",
+								"automatica"
+							],
+							"query": [
+								{
+									"key": "algoritmo",
+									"value": "round_robin",
+									"description": "Nota: Ejecutar solo si NO hay conductores disponibles"
+								}
+							]
+						},
+						"description": "Probar asignación cuando no hay conductores disponibles"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8003",
+			"type": "string"
+		},
+		{
+			"key": "conductor_id",
+			"value": "6",
+			"type": "string"
+		},
+		{
+			"key": "asignacion_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
