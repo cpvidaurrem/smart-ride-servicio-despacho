@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim AS base
 
 # Variables de entorno
 ENV PYTHONUNBUFFERED=1 \
@@ -8,6 +8,7 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apt-get update && apt-get install -y \
     postgresql-client \
     netcat-openbsd \
+    dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
 # Directorio de trabajo
@@ -30,6 +31,7 @@ EXPOSE 8003
 
 # Script de inicio
 COPY --chown=appuser:appuser docker-entrypoint.sh /app/
+RUN dos2unix /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
