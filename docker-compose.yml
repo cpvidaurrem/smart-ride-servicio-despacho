@@ -6,18 +6,18 @@ services:
     image: postgres:latest
     container_name: despacho-postgres
     environment:
-      POSTGRES_DB: despacho_db
-      POSTGRES_USER: despacho_user
-      POSTGRES_PASSWORD: despacho_pass
+      POSTGRES_DB: db_smartride_despacho
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - despacho-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U despacho_user -d despacho_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d db_smartride_despacho" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,12 +29,12 @@ services:
       dockerfile: Dockerfile
     container_name: despacho-api
     environment:
-      - DATABASE_URL=postgresql://despacho_user:despacho_pass@postgres:5432/despacho_db
+      - DATABASE_URL=postgresql://postgres:password123@postgres:5432/db_smartride_despacho
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=despacho_db
-      - DB_USER=despacho_user
-      - DB_PASSWORD=despacho_pass
+      - DB_NAME=db_smartride_despacho
+      - DB_USER=postgres
+      - DB_PASSWORD=password123
       - PORT=8003
       - DEBUG=True
     ports:

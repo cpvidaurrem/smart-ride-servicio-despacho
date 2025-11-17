@@ -83,7 +83,8 @@ http://localhost:8003/docs
 
 ### Acceder a BD por bash
 # Conectarse a PostgreSQL
-docker exec -it despacho-postgres psql -U despacho_user -d despacho_db
+docker exec -it despacho-postgres psql -U postgres -d db_smartride_despacho
+
 
 # Ver las tablas
 \dt
