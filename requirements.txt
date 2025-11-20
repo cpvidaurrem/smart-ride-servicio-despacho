@@ -11,6 +11,17 @@ pydantic==2.5.2
 pydantic-settings==2.1.0
 python-dotenv==1.0.0
 
+# RabbitMQ
+aio-pika==9.3.1
+
+# gRPC
+grpcio==1.60.0
+grpcio-tools==1.60.0
+protobuf==4.25.1
+
+# Cliente HTTP
+httpx==0.25.2
+
 # Testing (opcional)
 pytest==7.4.3
-httpx==0.25.2
+pytest-asyncio==0.21.1

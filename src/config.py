@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -8,47 +7,39 @@ class Settings(BaseSettings):
     # Aplicación
     app_name: str = "Servicio de Despacho - Smart Ride"
     app_version: str = "1.0.0"
-    environment: str = "development"
+    environment: str = "production"
     debug: bool = True
     port: int = 8003
     
-    # Base de datos (configurado para Docker)
-    database_url: str = "postgresql://despacho_user:despacho_pass@postgres:5432/despacho_db"
-    db_host: str = "postgres"
+    # Base de datos
+    database_url: str = "postgresql://usuario:usuario123@postgres-despacho:5432/db_smartride_despacho"
+    db_host: str = "postgres-despacho"
     db_port: int = 5432
-    db_name: str = "despacho_db"
-    db_user: str = "despacho_user"
-    db_password: str = "despacho_pass"
+    db_name: str = "db_smartride_despacho"
+    db_user: str = "usuario"
+    db_password: str = "usuario123"
     
-    # RabbitMQ (configurado para Docker)
-    rabbitmq_host: str = "rabbitmq"
-    rabbitmq_port: int = 5672
-    rabbitmq_user: str = "guest"
-    rabbitmq_password: str = "guest"
-    rabbitmq_vhost: str = "/"
-    rabbitmq_queue_nuevas_reservas: str = "nueva_reserva"
-    rabbitmq_queue_asignaciones: str = "viaje_asignado"
+    # RabbitMQ
+    rabbitmq_url: str = "amqp://guest:guest@rabbitmq:5672"
     rabbitmq_exchange: str = "smart_ride_exchange"
     
-    # gRPC
-    grpc_host: str = "0.0.0.0"
-    grpc_port: int = 50051
+    # Servicios externos
+    users_service_url: str = "http://users-service:3001"
+    reservas_service_url: str = "http://reservas-service:3002"
     
-    # Redis (configurado para Docker)
-    redis_host: str = "redis"
-    redis_port: int = 6379
-    redis_db: int = 0
+    # gRPC
+    reservas_grpc_url: str = "reservas-service:50051"
+    
+    # JWT
+    jwt_secret: str = "3583fbebc94b3a65b11d63e791f49e7de5e4b8bde1bb8548e707f1a78f321c6118f3aa0edf7d1c1429bb199979241ad30a8447acc27c085a89148647b254f402"
     
     # Logs
     log_level: str = "INFO"
     log_format: str = "json"
     
-    # Servicios externos (configurado para Docker)
-    ride_service_grpc_host: str = "servicio-viajes"
-    ride_service_grpc_port: int = 50052
-    
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
         case_sensitive = False
 
 
