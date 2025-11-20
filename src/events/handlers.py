@@ -174,15 +174,16 @@ async def handle_viaje_completado(data: Dict[str, Any]):
     print("🎯 [HANDLER] handle_viaje_completado INICIADO")
     print("=" * 60)
     
+    #  SIMPLIFICADO: Datos en nivel raíz
     id_viaje = data.get('id_viaje')
     id_conductor = data.get('id_conductor')
-    id_cliente = data.get('id_cliente')
+    id_pasajero = data.get('id_pasajero')
     fecha_fin = data.get('fecha_fin')
     
     print(f"📦 Datos recibidos:")
     print(f"   - ID Viaje: {id_viaje}")
     print(f"   - ID Conductor: {id_conductor}")
-    print(f"   - ID Cliente: {id_cliente}")
+    print(f"   - ID Pasajero: {id_pasajero}")
     print(f"   - Fecha Fin: {fecha_fin}")
     
     # Validar datos obligatorios
@@ -202,7 +203,7 @@ async def handle_viaje_completado(data: Dict[str, Any]):
         if actualizado:
             print(f"✅ [LIBERAR_CONDUCTOR] Conductor {id_conductor} liberado exitosamente")
             
-            # Publicar evento de confirmación (opcional)
+            # Publicar evento de confirmación
             await publish_event("dispatch.conductor_liberado", {
                 "id_conductor": id_conductor,
                 "id_viaje": id_viaje,
