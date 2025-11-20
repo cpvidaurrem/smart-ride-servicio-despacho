@@ -1,14 +1,13 @@
-version: '3.8'
 
 services:
   # Base de datos PostgreSQL
   postgres:
-    image: postgres:latest
+    image: postgres:17
     container_name: despacho-postgres
     environment:
       POSTGRES_DB: db_smartride_despacho
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password123
+      POSTGRES_USER: usuario
+      POSTGRES_PASSWORD: usuario123
     ports:
       - "5433:5432"
     volumes:
@@ -17,7 +16,7 @@ services:
     networks:
       - despacho-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d db_smartride_despacho" ]
+      test: [ "CMD-SHELL", "pg_isready -U usuario -d db_smartride_despacho" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,12 +28,12 @@ services:
       dockerfile: Dockerfile
     container_name: despacho-api
     environment:
-      - DATABASE_URL=postgresql://postgres:password123@postgres:5432/db_smartride_despacho
+      - DATABASE_URL=postgresql://usuario:usuario123@postgres:5432/db_smartride_despacho
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_NAME=db_smartride_despacho
-      - DB_USER=postgres
-      - DB_PASSWORD=password123
+      - DB_USER=usuario
+      - DB_PASSWORD=usuario123
       - PORT=8003
       - DEBUG=True
     ports:
